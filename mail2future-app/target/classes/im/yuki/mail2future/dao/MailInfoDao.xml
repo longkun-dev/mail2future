@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.yuki.mail2future.dao.MailInfoDao">
+
+    <resultMap id="BaseResultMap" type="im.yuki.mail2future.entity.MailInfoEntity">
+        <id property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="subject" column="subject" jdbcType="VARCHAR"/>
+        <result property="mailContent" column="mail_content" jdbcType="VARCHAR"/>
+        <result property="receiver" column="receiver" jdbcType="VARCHAR"/>
+        <result property="publicScope" column="public_scope" jdbcType="VARCHAR"/>
+        <result property="planSendTime" column="plan_send_time" jdbcType="TIMESTAMP"/>
+        <result property="actualSendTime" column="actual_send_time" jdbcType="TIMESTAMP"/>
+        <result property="verifyCode" column="verify_code" jdbcType="VARCHAR"/>
+        <result property="mailStatus" column="mail_status" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="VARCHAR"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        subject,
+        mail_content,
+        receiver,
+        public_scope,
+        plan_send_time,
+        actual_send_time,
+        verify_code,
+        mail_status,
+        created_by,
+        created_time,
+        updated_by,
+        updated_time
+    </sql>
+
+    <insert id="insert" parameterType="im.yuki.mail2future.entity.MailInfoEntity">
+        insert into tb_mail_info (id,
+                                  subject,
+                                  receiver,
+                                  mail_content,
+                                  plan_send_time,
+                                  actual_send_time,
+                                  verify_code,
+                                  mail_status,
+                                  created_by,
+                                  created_time,
+                                  updated_by,
+                                  updated_time)
+        values (#{id},
+                #{subject},
+                #{receiver},
+                #{mailContent},
+                #{planSendTime},
+                #{actualSendTime},
+                #{verifyCode},
+                #{mailStatus},
+                #{createdBy},
+                now(),
+                #{updatedBy},
+                now())
+    </insert>
+
+    <update id="updateMailStatus" parameterType="im.yuki.mail2future.entity.MailInfoEntity">
+        update tb_mail_info
+        set mail_status      = #{mailStatus},
+            actual_send_time = #{actualSendTime},
+            updated_by       = #{updatedBy},
+            updated_time     = now()
+        where id = #{id}
+    </update>
+
+    <select id="queryByVerifyCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_mail_info
+        where verify_code = #{verifyCode}
+    </select>
+
+    <select id="queryByPublicScope" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_mail_info
+        where public_scope = #{publicScope}
+        order by created_time desc
+    </select>
+
+    <select id="queryMailByPublicAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_mail_info
+        where public_scope = #{publicScope}
+        and mail_status = #{mailStatus}
+    </select>
+
+    <select id="queryMailById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_mail_info
+        where id = #{id}
+    </select>
+
+    <select id="queryByPlanSendTimeAndStatus" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_mail_info
+        where date(plan_send_time) = #{date}
+        and mail_status = #{mailStatus}
+    </select>
+
+    <select id="queryMail" resultType="im.yuki.mail2future.entity.MailStatEntity">
+        select (select count(*)
+                from tb_mail_info
+                where mail_status =
+                      '${@im.yuki.mail2future.constant.MailStatusConstant@MF_MAIL_STATUS_SENT_SUCCESS}')            as sentCount,
+               (select count(*)
+                from tb_mail_info
+                where mail_status =
+                      '${@im.yuki.mail2future.constant.MailStatusConstant@MF_MAIL_STATUS_TO_SEND}')                 as toSendCount,
+               (select count(*)
+                from tb_mail_info
+                where public_scope in ('${@im.yuki.mail2future.constant.PublicScopeConstant@MF_PUBLIC_SCOPE_HIDE_USER}',
+                                       '${@im.yuki.mail2future.constant.PublicScopeConstant@MF_PUBLIC_SCOPE_ALL}')) as publicCount;
+
+    </select>
+</mapper>

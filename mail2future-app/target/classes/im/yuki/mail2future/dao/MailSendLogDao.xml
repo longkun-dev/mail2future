@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="im.yuki.mail2future.dao.MailSendLogDao">
+
+    <resultMap id="BaseResultMap" type="im.yuki.mail2future.entity.MailSendLogEntity">
+        <id property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="mailId" column="mail_id" jdbcType="VARCHAR"/>
+        <result property="sendResult" column="send_result" jdbcType="VARCHAR"/>
+        <result property="actualSendTime" column="actual_send_time" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="VARCHAR"/>
+        <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        mail_id,
+        send_result,
+        actual_send_time,
+        created_by,
+        created_time,
+        updated_by,
+        updated_time
+    </sql>
+
+    <insert id="insert" parameterType="im.yuki.mail2future.entity.MailSendLogEntity">
+        insert into tb_mail_send_log (id,
+                                      mail_id,
+                                      send_result,
+                                      actual_send_time,
+                                      created_by,
+                                      created_time,
+                                      updated_by,
+                                      updated_time)
+        values (#{id},
+                #{mailId},
+                #{sendResult},
+                #{actualSendTime},
+                #{createdBy},
+                now(),
+                #{updatedBy},
+                now())
+    </insert>
+</mapper>
